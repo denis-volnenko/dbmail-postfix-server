@@ -52,11 +52,16 @@ add_config_value "append_dot_mydomain" "${APPEND_DOT_MYDOMAIN:-no}"
 
 if [[ "${RDBMS_ENABLED}" == "yes" ]]; then
    postconf -c "/etc/postfix/sql_virtual_mailbox_domains" -e "user = ${RDBMS_USERNAME:-}"
+   postconf -c "/etc/postfix/sql_virtual_mailbox_maps" -e "user = ${RDBMS_USERNAME:-}"
    postconf -c "/etc/postfix/sql_virtual_mailbox_domains" -e "password = ${RDBMS_PASSWORD:-}"
+   postconf -c "/etc/postfix/sql_virtual_mailbox_maps" -e "password = ${RDBMS_PASSWORD:-}"
    postconf -c "/etc/postfix/sql_virtual_mailbox_domains" -e "hosts = ${RDBMS_HOSTNAME:-}"
+   postconf -c "/etc/postfix/sql_virtual_mailbox_maps" -e "hosts = ${RDBMS_HOSTNAME:-}"
    postconf -c "/etc/postfix/sql_virtual_mailbox_domains" -e "dbname = ${RDBMS_DATABASE:-}"
+   postconf -c "/etc/postfix/sql_virtual_mailbox_maps" -e "dbname = ${RDBMS_DATABASE:-}"
    if [[ "${RDBMS_TYPENAME}" == "postgres" ]]; then
       postconf -c "/etc/postfix/sql_virtual_mailbox_domains" -e "query = SELECT DISTINCT 1 FROM dbmail_aliases WHERE SUBSTRING(alias FROM POSITION('@' in alias)+1) = '%s';"
+      postconf -c "/etc/postfix/sql_virtual_mailbox_maps" -e "query = SELECT DISTINCT 1  FROM dbmail_aliases WHERE alias= '%s';"
    fi
 fi
 
