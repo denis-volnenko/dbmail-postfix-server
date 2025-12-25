@@ -28,14 +28,19 @@ fi
 
 if [[ ! -z "${VIRTUAL_TRANSPORT}" ]]; then
   add_config_value "virtual_transport" "${VIRTUAL_TRANSPORT}"
+else
+  add_config_value "virtual_transport" "lmtp:inet:localhost:24"
 fi
 
 if [[ ! -z "${MAILBOX_TRANSPORT}" ]]; then
   add_config_value "mailbox_transport" "${MAILBOX_TRANSPORT}"
+else
+  add_config_value "mailbox_transport" "lmtp:inet:localhost:24"
 fi
 
-add_config_value "mydomain" ${DOMAIN}
-add_config_value "myorigin" ${DOMAIN}
+add_config_value "mydomain" ${DOMAIN:-localhost}
+add_config_value "myorigin" ${DOMAIN:-localhost}
+add_config_value "myhostname" ${SERVER_HOSTNAME:-localhost}
 
 add_config_value "maillog_file" "/dev/stdout"
 add_config_value "smtp_host_lookup" "native,dns"
@@ -43,8 +48,27 @@ add_config_value "inet_protocols" "ipv4"
 add_config_value "recipient_delimiter" "+"
 add_config_value "always_add_missing_headers" "${ALWAYS_ADD_MISSING_HEADERS:-no}"
 add_config_value "readme_directory" "${README_DIRECTORY:-no}"
+add_config_value "append_dot_mydomain" "${APPEND_DOT_MYDOMAIN:-no}"
 
-cat /etc/postfix/main.cf
+if [[ "${RDBMS_ENABLED}" == "yes" ]]; then
+   postconf -c "/etc/postfix/sql_virtual_mailbox_domains" -e "user = ${RDBMS_USERNAME:-}"
+   postconf -c "/etc/postfix/sql_virtual_mailbox_domains" -e "password = ${RDBMS_PASSWORD:-}"
+   postconf -c "/etc/postfix/sql_virtual_mailbox_domains" -e "hosts = ${RDBMS_HOSTNAME:-}"
+   postconf -c "/etc/postfix/sql_virtual_mailbox_domains" -e "dbname = ${RDBMS_DATABASE:-}"
+   if [[ "${RDBMS_TYPENAME}" == "postgres" ]]; then
+      postconf -c "/etc/postfix/sql_virtual_mailbox_domains" -e "query = SELECT DISTINCT 1 FROM dbmail_aliases WHERE SUBSTRING(alias FROM POSITION('@' in alias)+1) = '%s';"
+   fi
+fi
+
+if [[ "${SHOW_MAIN_CF}" == "yes" ]]; then
+  echo "/etc/postfix/main.cf"
+  cat /etc/postfix/main.cf
+fi
+
+if [[ "${SHOW_MASTER_CF}" == "yes" ]]; then
+  echo "/etc/postfix/master.cf"
+  cat /etc/postfix/master.cf
+fi
 
 rm -f /var/spool/postfix/pid/master.pid
 
