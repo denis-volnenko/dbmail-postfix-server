@@ -40,7 +40,7 @@ fi
 
 echo "${DOMAIN:-localhost}" >> /etc/mailname
 add_config_value "mydomain" "${DOMAIN:-localhost}"
-add_config_value "myorigin" "${DOMAIN:-localhost}"
+#add_config_value "myorigin" "${DOMAIN:-localhost}"
 add_config_value "myhostname" "${SERVER_HOSTNAME:-localhost}"
 
 if [[ ! -z "${MAILLOG_FILE}" ]]; then
