@@ -1,3 +1,3 @@
 #!/bin/bash
 
-docker build -t volnenko/postfix-lmtp:latest .
+docker build -t volnenko/dbmail-postfix-server:latest .
