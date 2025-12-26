@@ -1,0 +1,53 @@
+@startuml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+LAYOUT_WITH_LEGEND()
+title High Availability and Disaster Recovery
+
+Person(user, "User")
+
+System_Boundary(dc1, "DC1") {
+    Container(gslb_1, "gslb", "Container")
+    Container(haproxy_1, "haproxy", "Container")
+    System_Boundary(k8s_1, "K8S") {
+        Container(dbmail_imap_1, "dbmail-imap", "Container")
+        Container(dbmail_lmtp_1, "dbmail-lmtp", "Container")
+        Container(dbmail_postfix_1, "dbmail-postfix", "Container")
+    }
+    ContainerDb(dbmail_db_1, "dbmail", "Postgres")
+}
+
+System_Boundary(dc2, "DC2") {
+    Container(gslb_2, "gslb", "Container")
+    Container(haproxy_2, "haproxy", "Container")
+    System_Boundary(k8s_2, "K8S") {
+        Container(dbmail_imap_2, "dbmail-imap", "Container")
+        Container(dbmail_lmtp_2, "dbmail-lmtp", "Container")
+        Container(dbmail_postfix_2, "dbmail-postfix", "Container")
+    }
+    ContainerDb(dbmail_db_2, "dbmail", "Postgres")
+}
+
+Rel(user, haproxy_1, "tcp")
+Rel(user, gslb_1, "*:53")
+Rel(user, haproxy_2, "tcp")
+Rel(user, gslb_2, "*:53")
+
+Rel(haproxy_1, dbmail_imap_1, "imap:143")
+Rel(haproxy_1, dbmail_postfix_1, "smtp:25")
+Rel(dbmail_postfix_1, dbmail_lmtp_1, "lmtp:24")
+
+Rel(dbmail_imap_1, dbmail_db_1, "tcp:5432")
+Rel(dbmail_lmtp_1, dbmail_db_1, "tcp:5432")
+Rel_R(dbmail_postfix_1, dbmail_db_1, "tcp:5432")
+
+Rel(haproxy_2, dbmail_imap_2, "imap:143")
+Rel(haproxy_2, dbmail_postfix_2, "smtp:25")
+Rel(dbmail_postfix_2, dbmail_lmtp_2, "lmtp:24")
+
+Rel(dbmail_imap_2, dbmail_db_2, "tcp:5432")
+Rel(dbmail_lmtp_2, dbmail_db_2, "tcp:5432")
+Rel_R(dbmail_postfix_2, dbmail_db_2, "tcp:5432")
+
+BiRel_L(dbmail_db_1, dbmail_db_2, "Replication")
+
+@enduml

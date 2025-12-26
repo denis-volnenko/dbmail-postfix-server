@@ -21,6 +21,10 @@
 
 == Logical View
 
+image::images/logical-view.svg[]
+
 == Physical View
+
+image::images/physical-view.svg[]
 
 
