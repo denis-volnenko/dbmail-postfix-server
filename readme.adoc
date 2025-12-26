@@ -1,0 +1,23 @@
+= DBMail Postfix Server
+:showtitle:
+:toc:
+
+== General Info
+
+[cols="20,80"]
+|===
+
+|Developer
+|Denis Volnenko
+
+|Web-Site
+|https://www.volnenko.ru/dbmail-postfix-server/
+
+
+|===
+
+== Logical View
+
+== Physical View
+
+
